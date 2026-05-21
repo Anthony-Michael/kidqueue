@@ -32,6 +32,7 @@
       ],
       "expo-location"
     ],
+    "sdkVersion": "54.0.0",
     "experiments": {
       "typedRoutes": true
     }
