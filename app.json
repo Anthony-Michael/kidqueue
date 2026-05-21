@@ -15,7 +15,7 @@
       "package": "com.kidqueue.app",
       "adaptiveIcon": {
         "backgroundColor": "#4F86C6",
-        "foregroundImage": "./assets/adaptive-icon.png"
+        "foregroundImage": "./assets/android-icon-foreground.png"
       }
     },
     "web": {
