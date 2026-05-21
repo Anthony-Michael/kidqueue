@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "KidQueue",
+    "slug": "kidqueue",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "kidqueue",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kidqueue.app"
+    },
+    "android": {
+      "package": "com.kidqueue.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#4F86C6",
+        "foregroundImage": "./assets/adaptive-icon.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "color": "#4F86C6"
+        }
+      ],
+      "expo-location"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
