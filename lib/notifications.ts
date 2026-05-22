@@ -34,8 +34,16 @@ export async function registerForPushNotifications(): Promise<string | null> {
     });
   }
 
-  const token = (await Notifications.getExpoPushTokenAsync()).data;
-  return token;
+  // Remote push tokens are not supported in Expo Go (removed in SDK 53+).
+  // Local scheduled notifications still work fine — we only need the token
+  // for server-side alerts which require a production/development build.
+  try {
+    const token = (await Notifications.getExpoPushTokenAsync()).data;
+    return token;
+  } catch {
+    // Running in Expo Go — local notifications still work
+    return null;
+  }
 }
 
 export async function savePushToken(token: string) {
