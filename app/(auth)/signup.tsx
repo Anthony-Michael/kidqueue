@@ -48,7 +48,18 @@ export default function SignupScreen() {
         city,
         province: 'BC',
       });
+    }
+
+    if (data.session) {
+      // Email confirmation is disabled — logged in immediately
       router.replace('/(tabs)/discover');
+    } else if (data.user) {
+      // Email confirmation is enabled — ask user to confirm
+      Alert.alert(
+        'Check your email 📬',
+        `We sent a confirmation link to ${email}. Please confirm your email then come back and log in.`,
+        [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }],
+      );
     }
   };
 
