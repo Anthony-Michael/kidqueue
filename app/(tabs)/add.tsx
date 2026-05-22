@@ -6,6 +6,7 @@ import {
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSubmitActivity } from '../../hooks/useActivities';
+import { supabase } from '../../lib/supabase';
 import { Colors, CategoryColors } from '../../constants/Colors';
 import { Category } from '../../types';
 
@@ -33,8 +34,45 @@ export default function AddActivityScreen() {
   const [regDate, setRegDate] = useState('');
   const [startDate, setStartDate] = useState('');
   const [signupUrl, setSignupUrl] = useState('');
+  const [importUrl, setImportUrl] = useState('');
+  const [importing, setImporting] = useState(false);
 
   const { mutate: submitActivity, isPending } = useSubmitActivity();
+
+  const handleImportFromUrl = async () => {
+    if (!importUrl.startsWith('http')) {
+      Alert.alert('Invalid URL', 'Please enter a full URL starting with https://');
+      return;
+    }
+    setImporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('import-url', {
+        body: { url: importUrl },
+      });
+      if (error) throw error;
+      const a = data?.activity;
+      if (!a) throw new Error('Could not extract activity data from that page.');
+
+      // Pre-fill the form
+      if (a.name) setName(a.name);
+      if (a.provider) setProvider(a.provider);
+      if (a.category) setCategory(a.category as Category);
+      if (a.description) setDescription(a.description);
+      if (a.location) setLocation(a.location);
+      if (a.city) setCity(a.city);
+      if (a.age_min != null) setAgeMin(String(a.age_min));
+      if (a.age_max != null) setAgeMax(String(a.age_max));
+      if (a.registration_opens_at) setRegDate(a.registration_opens_at);
+      if (a.activity_starts_at) setStartDate(a.activity_starts_at);
+      if (a.signup_url) setSignupUrl(a.signup_url);
+      setImportUrl('');
+      Alert.alert('Imported! 🎉', 'Review the details below and make any corrections before submitting.');
+    } catch (e: any) {
+      Alert.alert('Import failed', e.message ?? 'Could not import from that URL. Try filling in manually.');
+    } finally {
+      setImporting(false);
+    }
+  };
 
   const handleSubmit = () => {
     if (!name || !provider || !location) {
@@ -89,6 +127,44 @@ export default function AddActivityScreen() {
             <Text style={styles.subtitle}>
               Help other Port Coquitlam parents by sharing local programs
             </Text>
+          </View>
+
+          {/* Import from URL */}
+          <View style={styles.importBox}>
+            <View style={styles.importHeader}>
+              <Ionicons name="sparkles-outline" size={18} color={Colors.primary} />
+              <Text style={styles.importTitle}>Import from URL</Text>
+            </View>
+            <Text style={styles.importSubtitle}>
+              Paste any activity page link — we'll fill in the details automatically
+            </Text>
+            <View style={styles.importRow}>
+              <TextInput
+                style={styles.importInput}
+                value={importUrl}
+                onChangeText={setImportUrl}
+                placeholder="https://www.portcoquitlam.ca/..."
+                placeholderTextColor={Colors.textMuted}
+                autoCapitalize="none"
+                keyboardType="url"
+              />
+              <TouchableOpacity
+                style={[styles.importBtn, importing && { opacity: 0.6 }]}
+                onPress={handleImportFromUrl}
+                disabled={importing}
+              >
+                {importing
+                  ? <ActivityIndicator color={Colors.white} size="small" />
+                  : <Ionicons name="arrow-forward" size={20} color={Colors.white} />
+                }
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or fill in manually</Text>
+            <View style={styles.dividerLine} />
           </View>
 
           {/* Name */}
@@ -304,4 +380,35 @@ const styles = StyleSheet.create({
   submitBtnInner: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   submitBtnText: { color: Colors.white, fontSize: 16, fontWeight: '700' },
   disclaimer: { fontSize: 12, color: Colors.textMuted, textAlign: 'center', marginTop: 16 },
+  importBox: {
+    backgroundColor: Colors.primaryLight,
+    borderRadius: 16,
+    padding: 16,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: Colors.primary + '30',
+    marginBottom: 4,
+  },
+  importHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  importTitle: { fontSize: 15, fontWeight: '700', color: Colors.primary },
+  importSubtitle: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18 },
+  importRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 4 },
+  importInput: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 13,
+    color: Colors.textPrimary,
+  },
+  importBtn: {
+    width: 42, height: 42, borderRadius: 10,
+    backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center',
+  },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 8 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
+  dividerText: { fontSize: 12, color: Colors.textMuted, fontWeight: '600' },
 });
