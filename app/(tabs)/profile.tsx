@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
   TouchableOpacity, TextInput, Alert, ActivityIndicator,
 } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
@@ -108,12 +109,19 @@ export default function ProfileScreen() {
               {(profile?.full_name ?? user?.email ?? '?')[0].toUpperCase()}
             </Text>
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.userName}>{profile?.full_name ?? 'Parent'}</Text>
             <Text style={styles.userEmail}>{user?.email}</Text>
-            <Text style={styles.userLocation}>
-              <Ionicons name="location-outline" size={12} /> {profile?.city}, {profile?.province}
-            </Text>
+            <TouchableOpacity
+              style={styles.locationRow}
+              onPress={() => router.push('/(auth)/onboarding')}
+            >
+              <Ionicons name="location-outline" size={12} color={Colors.primary} />
+              <Text style={styles.userLocation}>
+                {profile?.city ?? 'Set location'}{profile?.province ? `, ${profile.province}` : ''}
+              </Text>
+              <Text style={styles.changeText}>Change</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -211,7 +219,9 @@ const styles = StyleSheet.create({
   avatarText: { color: Colors.white, fontSize: 22, fontWeight: '800' },
   userName: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
   userEmail: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
-  userLocation: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+  userLocation: { fontSize: 12, color: Colors.primary, fontWeight: '600' },
+  changeText: { fontSize: 11, color: Colors.textMuted, textDecorationLine: 'underline', marginLeft: 4 },
   section: {
     backgroundColor: Colors.card,
     borderRadius: 16,

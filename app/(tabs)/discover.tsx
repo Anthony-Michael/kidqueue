@@ -6,6 +6,7 @@ import {
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useActivities } from '../../hooks/useActivities';
+import { useProfile } from '../../hooks/useProfile';
 import { Colors, CategoryColors } from '../../constants/Colors';
 import { Activity, Category } from '../../types';
 import { format, differenceInDays, parseISO } from 'date-fns';
@@ -93,8 +94,12 @@ function ActivityCard({ activity }: { activity: Activity }) {
 export default function DiscoverScreen() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const { data: profile } = useProfile();
+  const userCity = profile?.city ?? 'Port Coquitlam';
+  const userProvince = profile?.province ?? 'BC';
+
   const { data: activities, isLoading, refetch, isRefetching } = useActivities(
-    'Port Coquitlam',
+    userCity,
     selectedCategory,
   );
 
@@ -108,7 +113,11 @@ export default function DiscoverScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>🎯 KidQueue</Text>
-        <Text style={styles.subtitle}>Port Coquitlam, BC</Text>
+        <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} style={styles.locationRow}>
+          <Ionicons name="location-outline" size={13} color={Colors.primary} />
+          <Text style={styles.subtitle}>{userCity}, {userProvince}</Text>
+          <Ionicons name="chevron-forward" size={13} color={Colors.textMuted} />
+        </TouchableOpacity>
       </View>
 
       {/* Search */}
@@ -157,7 +166,7 @@ export default function DiscoverScreen() {
           <Text style={styles.emptyIcon}>🔍</Text>
           <Text style={styles.emptyTitle}>No activities found</Text>
           <Text style={styles.emptyText}>
-            Be the first to add one in Port Coquitlam!
+            Be the first to add one in {userCity}!
           </Text>
           <TouchableOpacity
             style={styles.emptyButton}
@@ -190,7 +199,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
   title: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary },
-  subtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 2 },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+  subtitle: { fontSize: 14, color: Colors.primary, fontWeight: '600' },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
