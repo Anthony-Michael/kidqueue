@@ -31,34 +31,37 @@ function RootLayoutNav() {
     });
 
     // Check AsyncStorage first (fast) then DB as fallback
-    AsyncStorage.getItem(CITY_KEY).then(async (cachedCity) => {
-      if (cachedCity) {
-        router.replace('/(tabs)/discover');
-        setReady(true);
-        return;
-      }
-
-      // Fallback: check DB for city
-      try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('city')
-          .eq('id', session.user.id)
-          .single();
-
-        if (data?.city) {
-          // Cache it for next time
-          await AsyncStorage.setItem(CITY_KEY, data.city);
+    AsyncStorage.getItem(CITY_KEY)
+      .then(async (cachedCity) => {
+        if (cachedCity) {
           router.replace('/(tabs)/discover');
-        } else {
-          router.replace('/(auth)/onboarding');
+          return;
         }
-      } catch {
-        router.replace('/(tabs)/discover');
-      }
+        // Fallback: check DB for city
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('city')
+            .eq('id', session.user.id)
+            .single();
 
-      setReady(true);
-    });
+          if (data?.city) {
+            await AsyncStorage.setItem(CITY_KEY, data.city).catch(() => {});
+            router.replace('/(tabs)/discover');
+          } else {
+            router.replace('/(auth)/onboarding');
+          }
+        } catch {
+          router.replace('/(tabs)/discover');
+        }
+      })
+      .catch(() => {
+        // AsyncStorage unavailable — fall through to discover
+        router.replace('/(tabs)/discover');
+      })
+      .finally(() => {
+        setReady(true);
+      });
   }, [session, loading]);
 
   // Show spinner while we figure out where to route
