@@ -165,15 +165,25 @@ export default function DiscoverScreen() {
         <ActivityIndicator color={Colors.primary} style={{ marginTop: 60 }} size="large" />
       ) : filtered.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyIcon}>🔍</Text>
-          <Text style={styles.emptyTitle}>No activities found</Text>
-          <Text style={styles.emptyText}>Be the first to add one in {userCity}!</Text>
-          <TouchableOpacity
-            style={styles.emptyButton}
-            onPress={() => router.push('/(tabs)/add')}
-          >
-            <Text style={styles.emptyButtonText}>Add an Activity</Text>
-          </TouchableOpacity>
+          <Text style={styles.emptyIcon}>{search ? '🔍' : '🌱'}</Text>
+          <Text style={styles.emptyTitle}>
+            {search ? 'No results found' : `Building ${userCity}…`}
+          </Text>
+          <Text style={styles.emptyText}>
+            {search
+              ? `No activities match "${search}"`
+              : `We're still collecting activities for ${userCity}. You can kick things off by importing from a URL or adding one manually!`}
+          </Text>
+          {!search && (
+            <>
+              <TouchableOpacity
+                style={styles.emptyButton}
+                onPress={() => router.push('/(tabs)/add')}
+              >
+                <Text style={styles.emptyButtonText}>➕  Add an Activity</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       ) : (
         <FlatList

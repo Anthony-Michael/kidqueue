@@ -178,8 +178,8 @@ serve(async (req) => {
       const isRelevant = source.keywords.some(kw => sourceText.includes(kw));
 
       const pagesToCheck = isRelevant
-        ? [source.url, ...relevantLinks.slice(0, 5)]
-        : relevantLinks.slice(0, 5);
+        ? [source.url, ...relevantLinks.slice(0, 3)]
+        : relevantLinks.slice(0, 3);
 
       for (const pageUrl of pagesToCheck) {
         results.checked++;
