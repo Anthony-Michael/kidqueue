@@ -6,8 +6,11 @@ import {
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../lib/supabase';
 import { Colors } from '../../constants/Colors';
+
+const CITY_KEY = 'kidqueue_user_city';
 
 const PROVINCES = ['BC', 'AB', 'ON', 'QC', 'MB', 'SK', 'NS', 'NB', 'NL', 'PE', 'NT', 'YT', 'NU'];
 
@@ -62,11 +65,12 @@ export default function OnboardingScreen() {
       const finalCity = skipCity ? 'Port Coquitlam' : city.trim();
       const finalProvince = skipCity ? 'BC' : province;
 
-      // Save to profile
+      // Save to profile + cache locally for fast startup
       await supabase
         .from('profiles')
         .update({ city: finalCity, province: finalProvince })
         .eq('id', user.id);
+      await AsyncStorage.setItem(CITY_KEY, finalCity);
 
       if (!skipCity) {
         // Trigger auto-discovery in background (don't block navigation)
