@@ -132,42 +132,42 @@ export default function DiscoverScreen() {
         />
       </View>
 
-      {/* Category pills */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoryRow}
-      >
-        {CATEGORIES.map((cat) => (
-          <TouchableOpacity
-            key={cat.key}
-            style={[
-              styles.categoryPill,
-              selectedCategory === cat.key && styles.categoryPillActive,
-            ]}
-            onPress={() => setSelectedCategory(cat.key)}
-          >
-            <Text style={styles.categoryPillIcon}>{cat.icon}</Text>
-            <Text style={[
-              styles.categoryPillText,
-              selectedCategory === cat.key && styles.categoryPillTextActive,
-            ]}>
-              {cat.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {/* Category pills — fixed-height wrapper prevents Android layout jank */}
+      <View style={styles.categoryWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryRow}
+        >
+          {CATEGORIES.map((cat) => (
+            <TouchableOpacity
+              key={cat.key}
+              style={[
+                styles.categoryPill,
+                selectedCategory === cat.key && styles.categoryPillActive,
+              ]}
+              onPress={() => setSelectedCategory(cat.key)}
+            >
+              <Text style={styles.categoryPillIcon}>{cat.icon}</Text>
+              <Text style={[
+                styles.categoryPillText,
+                selectedCategory === cat.key && styles.categoryPillTextActive,
+              ]}>
+                {cat.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
-      {/* Activity list */}
+      {/* Activity list — flex:1 ensures it fills space so gaps don't appear above */}
       {isLoading ? (
         <ActivityIndicator color={Colors.primary} style={{ marginTop: 60 }} size="large" />
       ) : filtered.length === 0 ? (
         <View style={styles.empty}>
           <Text style={styles.emptyIcon}>🔍</Text>
           <Text style={styles.emptyTitle}>No activities found</Text>
-          <Text style={styles.emptyText}>
-            Be the first to add one in {userCity}!
-          </Text>
+          <Text style={styles.emptyText}>Be the first to add one in {userCity}!</Text>
           <TouchableOpacity
             style={styles.emptyButton}
             onPress={() => router.push('/(tabs)/add')}
@@ -182,6 +182,7 @@ export default function DiscoverScreen() {
           renderItem={({ item }) => <ActivityCard activity={item} />}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          style={styles.flatList}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}
@@ -214,24 +215,26 @@ const styles = StyleSheet.create({
   },
   searchIcon: { marginRight: 8 },
   searchInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: Colors.textPrimary },
-  categoryRow: { paddingHorizontal: 16, paddingBottom: 12, gap: 8, flexDirection: 'row', alignItems: 'center' },
+  categoryWrapper: { height: 50, flexShrink: 0 },
+  categoryRow: { paddingHorizontal: 16, gap: 8, flexDirection: 'row', alignItems: 'center', height: 50 },
   categoryPill: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: Colors.card,
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: 20,
     paddingHorizontal: 14,
-    paddingVertical: 8,
     gap: 4,
-    height: 38,
+    height: 36,
   },
   categoryPillActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  categoryPillIcon: { fontSize: 13 },
-  categoryPillText: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
+  categoryPillIcon: { fontSize: 13, lineHeight: 18 },
+  categoryPillText: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, lineHeight: 18 },
   categoryPillTextActive: { color: Colors.white },
-  list: { padding: 16, gap: 12 },
+  flatList: { flex: 1 },
+  list: { padding: 16, gap: 12, flexGrow: 1 },
   card: {
     backgroundColor: Colors.card,
     borderRadius: 16,
