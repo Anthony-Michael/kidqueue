@@ -38,7 +38,7 @@ function RegistrationBadge({ opensAt }: { opensAt: string | null }) {
   );
   if (days <= 7) return (
     <View style={[styles.badge, { backgroundColor: '#FFF3E0' }]}>
-      <Text style={[styles.badgeText, { color: Colors.accent }]}>⏰ Opens in {days} days</Text>
+      <Text style={[styles.badgeText, { color: Colors.accent }]}>⏰ Opens in {days} {days === 1 ? 'day' : 'days'}</Text>
     </View>
   );
   return (
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   },
   searchIcon: { marginRight: 8 },
   searchInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: Colors.textPrimary },
-  categoryRow: { paddingHorizontal: 16, paddingBottom: 12, gap: 8, flexDirection: 'row' },
+  categoryRow: { paddingHorizontal: 16, paddingBottom: 12, gap: 8, flexDirection: 'row', alignItems: 'center' },
   categoryPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -223,8 +223,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderRadius: 20,
     paddingHorizontal: 14,
-    paddingVertical: 7,
+    paddingVertical: 8,
     gap: 4,
+    height: 38,
   },
   categoryPillActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   categoryPillIcon: { fontSize: 13 },
